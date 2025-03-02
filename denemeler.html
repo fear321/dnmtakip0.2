@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YKS Takip - Deneme Sonuçları</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a1d2b;    /* Koyu ton */
+            --secondary: #252736;  /* Koyu ton */
+            --accent: #3a6df0;     /* Vurgu rengi */
+            --light: #E5B8F4;      /* Açık metin rengi */
+            --border: #252736;
+            --box-background: #b0b0b0; /* Koyu gri kutucuk rengi */
+            --background: var(--primary); /* Arka plan rengi için değişken */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--background); /* Arka plan rengini değişkenle ayarla */
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .section {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--box-background); /* Açık gri kutucuk rengi */
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: rgba(58, 109, 240, 0.1);
+        }
+
+        .navigation {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            padding: 8px 16px;
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #2952b3;
+        }
+
+        .page-title {
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        .net-value {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: var(--primary);
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button class="back-button" onclick="window.location.href='home.html'">
+            <i class="fas fa-arrow-left"></i> Geri Dön
+        </button>
+        <h1 class="page-title">Deneme Sonuçları</h1>
+        <div></div> <!-- Boş div for alignment -->
+    </div>
+
+    <div class="container">
+        <!-- TYT Section -->
+        <div class="section">
+            <h2 class="section-header">TYT Ortalama Netleri</h2>
+            <table class="tyt-table">
+                <thead>
+                    <tr>
+                        <th>Ders</th>
+                        <th>Ortalama Net</th>
+                        <th>İlerleme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- TYT verileri buraya eklenecek -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- AYT Section -->
+        <div class="section">
+            <h2 class="section-header">AYT Ortalama Netleri</h2>
+            <table class="ayt-table">
+                <thead>
+                    <tr>
+                        <th>Ders</th>
+                        <th>Ortalama Net</th>
+                        <th>İlerleme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- AYT verileri buraya eklenecek -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Deneme verilerini localStorage'dan al
+        function getExamData() {
+            const tytData = JSON.parse(localStorage.getItem('tytExamData')) || [];
+            const aytData = JSON.parse(localStorage.getItem('aytExamData')) || [];
+            return { tytData, aytData };
+        }
+
+        // Ortalama netleri hesapla
+        function calculateAverages(examData) {
+            const subjects = {};
+            const counts = {};
+
+            examData.forEach(exam => {
+                for (const subject in exam.subjects) {
+                    if (!subjects[subject]) {
+                        subjects[subject] = 0;
+                        counts[subject] = 0;
+                    }
+                    subjects[subject] += parseFloat(exam.subjects[subject]);
+                    counts[subject]++;
+                }
+            });
+
+            const averages = {};
+            for (const subject in subjects) {
+                averages[subject] = counts[subject] > 0 ? (subjects[subject] / counts[subject]).toFixed(2) : 0;
+            }
+
+            return averages;
+        }
+
+        // Sayfa yüklendiğinde verileri al ve tabloyu güncelle
+        document.addEventListener('DOMContentLoaded', () => {
+            const MAX_QUESTIONS = {
+                "Türkçe": 40,
+                "Matematik": 40,
+                "Fizik": 7,
+                "Kimya": 7,
+                "Biyoloji": 6,
+                "Tarih": 5,
+                "Coğrafya": 5,
+                "Felsefe": 5,
+                "Din Kültürü": 5,
+                "Matematik (AYT)": 40,
+                "Fizik (AYT)": 14,
+                "Kimya (AYT)": 13,
+                "Biyoloji (AYT)": 13,
+                "Edebiyat": 24,
+                "Tarih-1": 10,
+                "Coğrafya-1": 6,
+                "Tarih-2": 11,
+                "Coğrafya-2": 11,
+                "Felsefe Grubu": 12
+            };
+
+            const { tytData, aytData } = getExamData();
+            const tytAverages = calculateAverages(tytData);
+            const aytAverages = calculateAverages(aytData);
+
+            const tytTableBody = document.querySelector('.tyt-table tbody');
+            tytTableBody.innerHTML = '';
+
+            for (const subject in tytAverages) {
+                const maxQuestions = MAX_QUESTIONS[subject] || 40;
+                const netValue = parseFloat(tytAverages[subject]);
+                const percentage = (netValue / maxQuestions) * 100;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject}</td>
+                    <td class="net-value">${tytAverages[subject]}</td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${percentage}%"></div>
+                        </div>
+                    </td>
+                `;
+                tytTableBody.appendChild(row);
+            }
+
+            const aytTableBody = document.querySelector('.ayt-table tbody');
+            aytTableBody.innerHTML = '';
+
+            for (const subject in aytAverages) {
+                const maxQuestions = MAX_QUESTIONS[subject] || 40;
+                const netValue = parseFloat(aytAverages[subject]);
+                const percentage = (netValue / maxQuestions) * 100;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject}</td>
+                    <td class="net-value">${aytAverages[subject]}</td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${percentage}%"></div>
+                        </div>
+                    </td>
+                `;
+                aytTableBody.appendChild(row);
+            }
+        });
+
+        // Tema renkleri
+        const themes = {
+            'cosmic-purple': {
+                primary: '#1a1423',
+                secondary: '#2D1B36',
+                accent: '#9B6B9E',
+                light: '#E5B8F4',
+                border: '#4A3B4E',
+                background: '#1a0d14' // Koyu arka plan rengi
+            },
+            'exam-tracker': {
+                primary: '#765D67',
+                secondary: '#6D3C52',
+                accent: '#4B2138',
+                light: '#FADCD5',
+                border: '#2D222F',
+                background: '#5b4a5e' // Koyu arka plan rengi
+            },
+            'ocean': {
+                primary: '#2c3e50',
+                secondary: '#34495e',
+                accent: '#3498db',
+                light: '#bdc3c7',
+                border: '#34495e',
+                background: '#1a1d2b' // Koyu arka plan rengi
+            },
+            'night-mode': {
+                primary: '#232526',
+                secondary: '#414345',
+                accent: '#3d453f',
+                light: '#ffffff',
+                border: '#444',
+                background: '#1a1a1a' // Koyu arka plan rengi
+            },
+            'nebula': {
+                primary: '#2D1B36',
+                secondary: '#3B2144',
+                accent: '#B86AF9',
+                light: '#E5B8F4',
+                border: '#513960',
+                background: '#1a0d14' // Koyu arka plan rengi
+            },
+            'starlight': {
+                primary: '#1E1E2E',
+                secondary: '#2B2440',
+                accent: '#A387CC',
+                light: '#E2D5F8',
+                border: '#463B5C',
+                background: '#1a1a2e' // Koyu arka plan rengi
+            }
+        };
+
+        // Tema değiştirme fonksiyonu
+        function changeTheme(themeName) {
+            const theme = themes[themeName];
+            const root = document.documentElement;
+
+            // CSS değişkenlerini güncelle
+            for (const [key, value] of Object.entries(theme)) {
+                root.style.setProperty(`--${key}`, value);
+            }
+
+            // Arka plan rengini ayarla
+            document.body.style.backgroundColor = theme.background;
+
+            // Seçili temayı localStorage'a kaydet
+            localStorage.setItem('selectedTheme', themeName);
+        }
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('selectedTheme') || 'cosmic-purple';
+            changeTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
